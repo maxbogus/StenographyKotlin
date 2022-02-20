@@ -86,6 +86,10 @@ fun handleHide() {
                         val modifiedBlueColor = color.blue or array[counter].toInt()
                         val newColor = Color(color.red, color.green, modifiedBlueColor)
                         image.setRGB(x, y, newColor.rgb)
+                    } else if (counter == array.size) {
+                        val modifiedBlueColor = color.blue or STOP_BYTE
+                        val newColor = Color(color.red, color.green, modifiedBlueColor)
+                        image.setRGB(x, y, newColor.rgb)
                     } else {
                         image.setRGB(x, y, color.rgb)
                     }
