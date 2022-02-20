@@ -70,34 +70,24 @@ fun handleHide() {
     val outputFileName = readLine()!!
     println("Message to hide:")
     val messageToConceal = readLine()!! + "\u0000\u0000\u0003"
-    var hiddenMessage = ""
+    val hiddenMessage = mutableListOf<String>()
     for (byte in messageToConceal.encodeToByteArray()) {
-        hiddenMessage += byte.toString(2).padStart(8,'0')
+        hiddenMessage += byte.toString(2).padStart(8, '0')
     }
-    val list = mutableListOf<Int>()
-    for (ch in hiddenMessage) {
-        list.add("$ch".toInt())
-    }
-    println(list)
     try {
         val inputFile = File(inputFileName)
-        val image: BufferedImage = ImageIO.read(inputFile)
-        val imageLimit = image.height * image.width
-        if (list.size > imageLimit) {
+        val file: BufferedImage = ImageIO.read(inputFile)
+        val image = BufferedImage(file.width, file.height, BufferedImage.TYPE_INT_RGB)
+        val imageLimit = image.height * 8
+        if (hiddenMessage.size > imageLimit) {
             println("The input image is not large enough to hold this message.")
         } else {
-            var counter = 0
-            for (x in 0 until image.width) {
-                for (y in 0 until image.height) {
+            for (y in 0 until hiddenMessage.size) {
+                for (x in 0 until hiddenMessage[y].length) {
                     val color = Color(image.getRGB(x, y))
-                    if (counter <= list.size - 1) {
-                        val modifiedBlueColor = color.blue or list[counter]
-                        val newColor = Color(color.red, color.green, modifiedBlueColor)
-                        image.setRGB(x, y, newColor.rgb)
-                    } else {
-                        image.setRGB(x, y, color.rgb)
-                    }
-                    counter++
+                    val modifiedBlueColor = color.blue or "${hiddenMessage[y][x]}".toInt()
+                    val newColor = Color(color.red, color.green, modifiedBlueColor)
+                    image.setRGB(x, y, newColor.rgb)
                 }
             }
             val outputFile = File(outputFileName)
