@@ -6,7 +6,7 @@ import java.io.File
 import java.io.IOException
 import javax.imageio.ImageIO
 
-const val STOP_BYTE = 0b000000000000000000000011
+const val STOP_BYTE = 0x000000000000000000000011
 
 fun main() {
     do {
@@ -68,21 +68,28 @@ fun handleHide() {
     try {
         val inputFile = File(inputFileName)
         val image: BufferedImage = ImageIO.read(inputFile)
-        var counter = 0
-        for (x in 0 until image.width) {
-            for (y in 0 until image.height) {
-                val color = Color(image.getRGB(x, y))
-                if (counter <= array.size - 1) {
-                    val modifiedBlueColor = color.blue or array[counter].toInt()
-                    val newColor = Color(color.red, color.green, modifiedBlueColor)
-                    image.setRGB(x, y, newColor.rgb)
+        val imageLimit = image.height * image.width
+        if (array.size > imageLimit) {
+            println("The input image is not large enough to hold this message.")
+        } else {
+            var counter = 0
+            for (x in 0 until image.width) {
+                for (y in 0 until image.height) {
+                    val color = Color(image.getRGB(x, y))
+                    if (counter <= array.size - 1) {
+                        val modifiedBlueColor = color.blue or array[counter].toInt()
+                        val newColor = Color(color.red, color.green, modifiedBlueColor)
+                        image.setRGB(x, y, newColor.rgb)
+                    } else {
+                        image.setRGB(x, y, color.rgb)
+                    }
+                    counter++
                 }
-                counter++
             }
+            val outputFile = File(outputFileName)
+            ImageIO.write(image, "png", outputFile)
+            println("Message saved in $outputFileName image.")
         }
-        val outputFile = File(outputFileName)
-        ImageIO.write(image, "png", outputFile)
-        println("Message saved in $outputFileName image.")
     } catch (_: IOException) {
         println("Can't read input file!")
     } catch (_: Exception) {
