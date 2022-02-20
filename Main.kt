@@ -28,33 +28,31 @@ fun handleElse() {
 fun handleShow() {
     println("Input image file:")
     val inputFileName = readLine()!!
-    val array: ByteArray = byteArrayOf()
+    val list = mutableListOf<Byte>()
     try {
         println("Input Image: $inputFileName")
         val inputFile = File(inputFileName)
         val image: BufferedImage = ImageIO.read(inputFile)
-        var index = 0
-        var stop = false
-        for (x in 0 until image.width) {
-            for (y in 0 until image.height) {
-                if (!stop) {
-                    val color = Color(image.getRGB(x, y))
-                    val lsbFromColor = color.blue and 1
-                    if (lsbFromColor != STOP_BYTE) {
-                        array[index] = lsbFromColor.toByte()
-                    } else {
-                        stop = true
-                    }
-                    index++
-                }
+        for (x in 0 until image.height) {
+            var string = ""
+            for (y in 0 until 8) {
+                val color = Color(image.getRGB(x, y))
+                val lsbFromColor = color.blue and 1
+                list.add(lsbFromColor.toByte())
+                string += lsbFromColor
+            }
+            if (string == STOP_BYTE.toString()) {
+                println(string)
+                break
             }
         }
         println("Message:")
-        println(array.toString(Charsets.UTF_8))
+        println(list.toByteArray().toString(Charsets.UTF_8))
     } catch (e: IOException) {
         println(e.cause)
         println("Can't read input file!")
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        println(e.cause)
         println("Can't read output file!")
     }
 }
