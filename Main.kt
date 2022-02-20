@@ -20,11 +20,33 @@ fun main() {
 }
 
 fun handleElse() {
-    TODO("Not yet implemented")
+    println("Action is not supported.")
 }
 
 fun handleShow() {
-    TODO("Not yet implemented")
+    println("Input image file:")
+    val inputFileName = readLine()!!
+    var message = ""
+    try {
+        println("Input Image: $inputFileName")
+        val inputFile = File(inputFileName)
+        val image: BufferedImage = ImageIO.read(inputFile)
+        for (x in 0 until image.width) {
+            for (y in 0 until image.height) {
+                val color = Color(image.getRGB(x, y))
+                val modifiedBlueColor = color.blue or 1
+                val newColor = Color(color.red, color.green, modifiedBlueColor)
+                image.setRGB(x, y, newColor.rgb)
+            }
+        }
+
+        println("Message:")
+        println(message)
+    } catch (_: IOException) {
+        println("Can't read input file!")
+    } catch (_: Exception) {
+        println("Can't read output file!")
+    }
 }
 
 private fun handleExit() {
