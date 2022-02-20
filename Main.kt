@@ -6,6 +6,8 @@ import java.io.File
 import java.io.IOException
 import javax.imageio.ImageIO
 
+const val STOP_BYTE = 0b000000000000000000000011
+
 fun main() {
     do {
         println("Task (hide, show, exit):")
@@ -26,22 +28,24 @@ fun handleElse() {
 fun handleShow() {
     println("Input image file:")
     val inputFileName = readLine()!!
-    var message = ""
+    val array: ByteArray = byteArrayOf()
     try {
         println("Input Image: $inputFileName")
         val inputFile = File(inputFileName)
         val image: BufferedImage = ImageIO.read(inputFile)
+        var index = 0
         for (x in 0 until image.width) {
             for (y in 0 until image.height) {
                 val color = Color(image.getRGB(x, y))
-                val modifiedBlueColor = color.blue or 1
-                val newColor = Color(color.red, color.green, modifiedBlueColor)
-                image.setRGB(x, y, newColor.rgb)
+                val lsbFromColor = color.blue and 1
+                if (lsbFromColor != STOP_BYTE) {
+                    array[index] = lsbFromColor.toByte()
+                }
+                index++
             }
         }
-
         println("Message:")
-        println(message)
+        println(array.toString(Charsets.UTF_8))
     } catch (_: IOException) {
         println("Can't read input file!")
     } catch (_: Exception) {
@@ -60,21 +64,25 @@ fun handleHide() {
     val outputFileName = readLine()!!
     println("Message to hide:")
     val messageToConceal = readLine()!!
+    val array = messageToConceal.encodeToByteArray()
     try {
-        println("Input Image: $inputFileName")
         val inputFile = File(inputFileName)
         val image: BufferedImage = ImageIO.read(inputFile)
+        var counter = 0
         for (x in 0 until image.width) {
             for (y in 0 until image.height) {
                 val color = Color(image.getRGB(x, y))
-                val modifiedBlueColor = color.blue or 1
-                val newColor = Color(color.red, color.green, modifiedBlueColor)
-                image.setRGB(x, y, newColor.rgb)
+                if (counter <= array.size - 1) {
+                    val modifiedBlueColor = color.blue or array[counter].toInt()
+                    val newColor = Color(color.red, color.green, modifiedBlueColor)
+                    image.setRGB(x, y, newColor.rgb)
+                }
+                counter++
             }
         }
         val outputFile = File(outputFileName)
         ImageIO.write(image, "png", outputFile)
-        println("Message saved in $$outputFileName image.")
+        println("Message saved in $outputFileName image.")
     } catch (_: IOException) {
         println("Can't read input file!")
     } catch (_: Exception) {
