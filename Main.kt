@@ -11,20 +11,20 @@ fun main() {
         println("Task (hide, show, exit):")
         val input = readLine()!!
         when (input) {
-            "hide" -> {
-                handleHide()
-            }
-            "show" -> {
-
-            }
-            "exit" -> {
-                handleExit()
-            }
-            else -> {
-
-            }
+            "hide" -> handleHide()
+            "show" -> handleShow()
+            "exit" -> handleExit()
+            else -> handleElse()
         }
     } while (input != "exit")
+}
+
+fun handleElse() {
+    TODO("Not yet implemented")
+}
+
+fun handleShow() {
+    TODO("Not yet implemented")
 }
 
 private fun handleExit() {
@@ -36,6 +36,8 @@ fun handleHide() {
     val inputFileName = readLine()!!
     println("Output image file:")
     val outputFileName = readLine()!!
+    println("Message to hide:")
+    val messageToConceal = readLine()!!
     try {
         println("Input Image: $inputFileName")
         val inputFile = File(inputFileName)
@@ -43,17 +45,14 @@ fun handleHide() {
         for (x in 0 until image.width) {
             for (y in 0 until image.height) {
                 val color = Color(image.getRGB(x, y))
-                val green = color.green or 1
-                val blue = color.blue or 1
-                val red = color.red or 1
-                val newColor = Color(red, green, blue)
+                val modifiedBlueColor = color.blue or 1
+                val newColor = Color(color.red, color.green, modifiedBlueColor)
                 image.setRGB(x, y, newColor.rgb)
             }
         }
         val outputFile = File(outputFileName)
         ImageIO.write(image, "png", outputFile)
-        println("Output Image: $outputFileName")
-        println("Image $outputFileName is saved.")
+        println("Message saved in $$outputFileName image.")
     } catch (_: IOException) {
         println("Can't read input file!")
     } catch (_: Exception) {
