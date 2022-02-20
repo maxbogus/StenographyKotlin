@@ -34,19 +34,25 @@ fun handleShow() {
         val inputFile = File(inputFileName)
         val image: BufferedImage = ImageIO.read(inputFile)
         var index = 0
+        var stop = false
         for (x in 0 until image.width) {
             for (y in 0 until image.height) {
-                val color = Color(image.getRGB(x, y))
-                val lsbFromColor = color.blue and 1
-                if (lsbFromColor != STOP_BYTE) {
-                    array[index] = lsbFromColor.toByte()
+                if (!stop) {
+                    val color = Color(image.getRGB(x, y))
+                    val lsbFromColor = color.blue and 1
+                    if (lsbFromColor != STOP_BYTE) {
+                        array[index] = lsbFromColor.toByte()
+                    } else {
+                        stop = true
+                    }
+                    index++
                 }
-                index++
             }
         }
         println("Message:")
         println(array.toString(Charsets.UTF_8))
-    } catch (_: IOException) {
+    } catch (e: IOException) {
+        println(e.cause)
         println("Can't read input file!")
     } catch (_: Exception) {
         println("Can't read output file!")
