@@ -69,25 +69,29 @@ fun handleHide() {
     println("Output image file:")
     val outputFileName = readLine()!!
     println("Message to hide:")
-    val messageToConceal = readLine()!!
-    val array = messageToConceal.encodeToByteArray()
+    val messageToConceal = readLine()!! + "\u0000\u0000\u0003"
+    var hiddenMessage = ""
+    for (byte in messageToConceal.encodeToByteArray()) {
+        hiddenMessage += byte.toString(2).padStart(8,'0')
+    }
+    val list = mutableListOf<Int>()
+    for (ch in hiddenMessage) {
+        list.add("$ch".toInt())
+    }
+    println(list)
     try {
         val inputFile = File(inputFileName)
         val image: BufferedImage = ImageIO.read(inputFile)
         val imageLimit = image.height * image.width
-        if (array.size > imageLimit) {
+        if (list.size > imageLimit) {
             println("The input image is not large enough to hold this message.")
         } else {
             var counter = 0
             for (x in 0 until image.width) {
                 for (y in 0 until image.height) {
                     val color = Color(image.getRGB(x, y))
-                    if (counter <= array.size - 1) {
-                        val modifiedBlueColor = color.blue or array[counter].toInt()
-                        val newColor = Color(color.red, color.green, modifiedBlueColor)
-                        image.setRGB(x, y, newColor.rgb)
-                    } else if (counter == array.size) {
-                        val modifiedBlueColor = color.blue or STOP_BYTE
+                    if (counter <= list.size - 1) {
+                        val modifiedBlueColor = color.blue or list[counter]
                         val newColor = Color(color.red, color.green, modifiedBlueColor)
                         image.setRGB(x, y, newColor.rgb)
                     } else {
